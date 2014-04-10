@@ -41,13 +41,17 @@ public class InvertedIndexer {
 
 				context.write(pageID, word);
 			}
-			
-			System.out.println(page);
 		}
 	}
 
 	public static class Reduce extends
 			Reducer<LongWritable, Text, Text, List<IntWritable>> {
+
+		@Override
+		public void reduce(LongWritable key, Iterable<Text> values,
+				Context context) {
+			
+		}
 
 	}
 
