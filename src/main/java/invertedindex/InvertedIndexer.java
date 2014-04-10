@@ -39,8 +39,7 @@ public class InvertedIndexer {
 			String sanitizedPage = getSanitizedPage(page);
 			LongWritable pageId = new LongWritable(getPageID(page));
 
-			StringTokenizer iter = new StringTokenizer(
-					sanitizedPage.toLowerCase());
+			StringTokenizer iter = new StringTokenizer(sanitizedPage);
 			while (iter.hasMoreTokens()) {
 				Text word = new Text();
 				word.set(iter.nextToken());
@@ -52,7 +51,7 @@ public class InvertedIndexer {
 		}
 
 		public String getSanitizedPage(String page) {
-			return sanitizePattern.matcher(page).replaceAll(" ");
+			return sanitizePattern.matcher(page).replaceAll(" ").toLowerCase();
 		}
 
 		public Long getPageID(String page) {
@@ -71,7 +70,9 @@ public class InvertedIndexer {
 				Context context) throws IOException, InterruptedException {
 			List<LongWritable> list = new ArrayList<LongWritable>();
 			for (LongWritable val : values) {
-				list.add(val);
+				if (!list.contains(val)) {
+					list.add(val);
+				}
 			}
 
 			context.write(
