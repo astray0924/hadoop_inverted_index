@@ -26,7 +26,7 @@ public class InvertedIndexer {
 	private static List<Text> stopWords;
 
 	public static class InvertedIndexerMapper extends
-			Mapper<LongWritable, Text, LongWritable, Text> {
+			Mapper<LongWritable, Text, Text, LongWritable> {
 		private static final Pattern sanitizePattern = Pattern
 				.compile("[^A-Za-z0-9 ]");
 		private static final Pattern pageIdPattern = Pattern
@@ -38,7 +38,7 @@ public class InvertedIndexer {
 			String page = value.toString();
 			String sanitizedPage = getSanitizedPage(page);
 			LongWritable pageId = new LongWritable(getPageID(page));
-			
+
 			StringTokenizer iter = new StringTokenizer(
 					sanitizedPage.toLowerCase());
 			while (iter.hasMoreTokens()) {
@@ -46,13 +46,13 @@ public class InvertedIndexer {
 				word.set(iter.nextToken());
 
 				if (!stopWords.contains(word)) {
-					context.write(pageId, word);
+					context.write(word, pageId);
 				}
 			}
 		}
 
 		public String getSanitizedPage(String page) {
-			return sanitizePattern.matcher(page).replaceAll("");
+			return sanitizePattern.matcher(page).replaceAll(" ");
 		}
 
 		public Long getPageID(String page) {
@@ -62,28 +62,28 @@ public class InvertedIndexer {
 		}
 	}
 
-	// TODO: <word>: <page IDs> => 이 형태로 출력해야
+	// <word>: <page IDs>
 	public static class InvertedIndexerReducer extends
-			Reducer<LongWritable, Text, Text, List<LongWritable>> {
+			Reducer<Text, LongWritable, Text, PageIdArrayWritable> {
 
 		@Override
-		public void reduce(LongWritable key, Iterable<Text> values,
-				Context context) {
-			List<LongWritable> pageIdList = new ArrayList<LongWritable>();
+		public void reduce(Text key, Iterable<LongWritable> values,
+				Context context) throws IOException, InterruptedException {
+			List<LongWritable> list = new ArrayList<LongWritable>();
+			for (LongWritable val : values) {
+				list.add(val);
+			}
 
-			// ArrayList<Text> list = new ArrayList<Text>();
-			// for (Text val : values) {
-			// list.add(new Text(val));
-			// }
-			// context.write(
-			// key,
-			// new MyArrayWritable(IntWritable.class, list
-			// .toArray(new IntWritable[list.size()])));
+			context.write(
+					key,
+					new PageIdArrayWritable(LongWritable.class, list
+							.toArray(new LongWritable[list.size()])));
+
 		}
 
 	}
 
-	class PageIdArrayWritable extends ArrayWritable {
+	public static class PageIdArrayWritable extends ArrayWritable {
 
 		public PageIdArrayWritable(Class<? extends Writable> valueClass,
 				Writable[] values) {
@@ -134,8 +134,8 @@ public class InvertedIndexer {
 		job.setMapperClass(InvertedIndexerMapper.class);
 		job.setReducerClass(InvertedIndexerReducer.class);
 
-		job.setMapOutputKeyClass(LongWritable.class);
-		job.setMapOutputValueClass(Text.class);
+		job.setMapOutputKeyClass(Text.class);
+		job.setMapOutputValueClass(LongWritable.class);
 
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(PageIdArrayWritable.class);
