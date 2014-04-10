@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.ArrayWritable;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
@@ -26,7 +27,7 @@ public class InvertedIndexer {
 	private static List<Text> stopWords;
 
 	public static class InvertedIndexerMapper extends
-			Mapper<LongWritable, Text, Text, LongWritable> {
+			Mapper<LongWritable, Text, Text, IntWritable> {
 		private static final Pattern sanitizePattern = Pattern
 				.compile("[^A-Za-z0-9 ]");
 		private static final Pattern pageIdPattern = Pattern
@@ -37,7 +38,7 @@ public class InvertedIndexer {
 				throws IOException, InterruptedException {
 			String page = value.toString();
 			String sanitizedPage = getSanitizedPage(page);
-			LongWritable pageId = new LongWritable(getPageID(page));
+			IntWritable pageId = new IntWritable(getPageID(page));
 
 			StringTokenizer iter = new StringTokenizer(sanitizedPage);
 			while (iter.hasMoreTokens()) {
@@ -54,31 +55,31 @@ public class InvertedIndexer {
 			return sanitizePattern.matcher(page).replaceAll(" ").toLowerCase();
 		}
 
-		public Long getPageID(String page) {
+		public Integer getPageID(String page) {
 			Matcher matcher = pageIdPattern.matcher(page);
 			matcher.find();
-			return new Long(matcher.group(1));
+			return new Integer(matcher.group(1));
 		}
 	}
 
 	// <word>: <page IDs>
 	public static class InvertedIndexerReducer extends
-			Reducer<Text, LongWritable, Text, PageIdArrayWritable> {
+			Reducer<Text, IntWritable, Text, PageIdArrayWritable> {
 
 		@Override
-		public void reduce(Text key, Iterable<LongWritable> values,
+		public void reduce(Text key, Iterable<IntWritable> values,
 				Context context) throws IOException, InterruptedException {
-			List<LongWritable> list = new ArrayList<LongWritable>();
-			for (LongWritable val : values) {
+			List<IntWritable> list = new ArrayList<IntWritable>();
+			for (IntWritable val : values) {
 				if (!list.contains(val)) {
-					list.add(new LongWritable(val.get()));
+					list.add(new IntWritable(val.get()));
 				}
 			}
 
 			context.write(
 					key,
-					new PageIdArrayWritable(LongWritable.class, list
-							.toArray(new LongWritable[list.size()])));
+					new PageIdArrayWritable(IntWritable.class, list
+							.toArray(new IntWritable[list.size()])));
 
 		}
 
@@ -96,8 +97,8 @@ public class InvertedIndexer {
 		}
 
 		@Override
-		public LongWritable[] get() {
-			return (LongWritable[]) super.get();
+		public Writable[] get() {
+			return (Writable[]) super.get();
 		}
 
 		@Override
@@ -123,6 +124,7 @@ public class InvertedIndexer {
 		while ((line = br.readLine()) != null) {
 			stopWords.add(new Text(line));
 		}
+		br.close();
 
 		// 하둡 Job 생성 및 실행
 		Job job = new Job();
@@ -136,7 +138,7 @@ public class InvertedIndexer {
 		job.setReducerClass(InvertedIndexerReducer.class);
 
 		job.setMapOutputKeyClass(Text.class);
-		job.setMapOutputValueClass(LongWritable.class);
+		job.setMapOutputValueClass(IntWritable.class);
 
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(PageIdArrayWritable.class);
