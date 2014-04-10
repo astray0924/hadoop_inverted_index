@@ -1,11 +1,11 @@
 package invertedindex;
 
 import java.io.BufferedReader;
-import java.io.DataOutput;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
@@ -13,7 +13,6 @@ import java.util.regex.Pattern;
 
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.ArrayWritable;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
@@ -37,19 +36,14 @@ public class InvertedIndexer {
 		public void map(LongWritable key, Text value, Context context)
 				throws IOException, InterruptedException {
 			String page = value.toString();
-
-			String pageIdString = getPageID(page);
-
 			String sanitizedPage = getSanitizedPage(page);
-
+			LongWritable pageId = new LongWritable(getPageID(page));
+			
 			StringTokenizer iter = new StringTokenizer(
 					sanitizedPage.toLowerCase());
-
 			while (iter.hasMoreTokens()) {
 				Text word = new Text();
 				word.set(iter.nextToken());
-
-				LongWritable pageId = new LongWritable(new Long(pageIdString));
 
 				if (!stopWords.contains(word)) {
 					context.write(pageId, word);
@@ -61,14 +55,14 @@ public class InvertedIndexer {
 			return sanitizePattern.matcher(page).replaceAll("");
 		}
 
-		public String getPageID(String page) {
+		public Long getPageID(String page) {
 			Matcher matcher = pageIdPattern.matcher(page);
 			matcher.find();
-			return matcher.group(1);
+			return new Long(matcher.group(1));
 		}
 	}
 
-	// TODO: <word>: <page IDs> => 이 형태로 출력해야 
+	// TODO: <word>: <page IDs> => 이 형태로 출력해야
 	public static class InvertedIndexerReducer extends
 			Reducer<LongWritable, Text, Text, List<LongWritable>> {
 
@@ -76,17 +70,15 @@ public class InvertedIndexer {
 		public void reduce(LongWritable key, Iterable<Text> values,
 				Context context) {
 			List<LongWritable> pageIdList = new ArrayList<LongWritable>();
-			
-			
-			
-//			ArrayList<Text> list = new ArrayList<Text>();
-//			for (Text val : values) {
-//				list.add(new Text(val));
-//			}
-//			context.write(
-//					key,
-//					new MyArrayWritable(IntWritable.class, list
-//							.toArray(new IntWritable[list.size()])));
+
+			// ArrayList<Text> list = new ArrayList<Text>();
+			// for (Text val : values) {
+			// list.add(new Text(val));
+			// }
+			// context.write(
+			// key,
+			// new MyArrayWritable(IntWritable.class, list
+			// .toArray(new IntWritable[list.size()])));
 		}
 
 	}
@@ -108,10 +100,8 @@ public class InvertedIndexer {
 		}
 
 		@Override
-		public void write(DataOutput arg0) throws IOException {
-			for (LongWritable i : get()) {
-				i.write(arg0);
-			}
+		public String toString() {
+			return Arrays.toString(get());
 		}
 	}
 
