@@ -71,7 +71,7 @@ public class InvertedIndexer {
 			List<LongWritable> list = new ArrayList<LongWritable>();
 			for (LongWritable val : values) {
 				if (!list.contains(val)) {
-					list.add(val);
+					list.add(new LongWritable(val.get()));
 				}
 			}
 
@@ -141,6 +141,7 @@ public class InvertedIndexer {
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(PageIdArrayWritable.class);
 
+		job.setNumReduceTasks(2);
 		job.waitForCompletion(true);
 
 	}
