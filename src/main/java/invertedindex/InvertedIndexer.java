@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.ArrayWritable;
@@ -24,33 +26,52 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 public class InvertedIndexer {
 	private static List<Text> stopWords;
 
-	public static class Map extends
+	public static class InvertedIndexerMapper extends
 			Mapper<LongWritable, Text, LongWritable, Text> {
+		private static final Pattern sanitizePattern = Pattern.compile("[^A-Za-z0-9 ]");
+		private static final Pattern pageIdPattern = Pattern.compile("<id>(.+?)</id>");
 
 		@Override
 		public void map(LongWritable key, Text value, Context context)
 				throws IOException, InterruptedException {
 			String page = value.toString();
-			StringTokenizer itr = new StringTokenizer(page.toLowerCase());
-			while (itr.hasMoreTokens()) {
+			
+			String pageIdString = getPageID(page);
+			
+			System.out.println(pageIdString);
+			
+			String sanitizedPage = getSanitizedPage(page);
+			
+			StringTokenizer iter = new StringTokenizer(sanitizedPage.toLowerCase());
+
+			while (iter.hasMoreTokens()) {
 				Text word = new Text();
-				word.set(itr.nextToken());
+				word.set(iter.nextToken());
 
-				LongWritable pageID = new LongWritable();
-				pageID.set(1);
+				LongWritable pageId = new LongWritable(new Long(pageIdString));
 
-				context.write(pageID, word);
+				if (stopWords.contains(word)) {
+					context.write(pageId, word);					
+				}
 			}
+		}
+
+		public String getSanitizedPage(String page) {
+			return sanitizePattern.matcher(page).replaceAll("");
+		}
+		
+		public String getPageID(String page) {
+			return pageIdPattern.matcher(page).group(1);
 		}
 	}
 
-	public static class Reduce extends
+	public static class InvertedIndexerReducer extends
 			Reducer<LongWritable, Text, Text, List<IntWritable>> {
 
 		@Override
 		public void reduce(LongWritable key, Iterable<Text> values,
 				Context context) {
-			
+
 		}
 
 	}
@@ -105,8 +126,8 @@ public class InvertedIndexer {
 		FileInputFormat.addInputPath(job, new Path(args[0]));
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
-		job.setMapperClass(Mapper.class);
-		job.setReducerClass(Reducer.class);
+		job.setMapperClass(InvertedIndexerMapper.class);
+		job.setReducerClass(InvertedIndexerReducer.class);
 
 		job.setMapOutputKeyClass(LongWritable.class);
 		job.setMapOutputValueClass(Text.class);
