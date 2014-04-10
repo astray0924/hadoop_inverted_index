@@ -38,8 +38,6 @@ public class InvertedIndexer {
 			
 			String pageIdString = getPageID(page);
 			
-			System.out.println(pageIdString);
-			
 			String sanitizedPage = getSanitizedPage(page);
 			
 			StringTokenizer iter = new StringTokenizer(sanitizedPage.toLowerCase());
@@ -61,7 +59,9 @@ public class InvertedIndexer {
 		}
 		
 		public String getPageID(String page) {
-			return pageIdPattern.matcher(page).group(1);
+			Matcher matcher = pageIdPattern.matcher(page);
+			matcher.find();
+			return matcher.group(1);
 		}
 	}
 
