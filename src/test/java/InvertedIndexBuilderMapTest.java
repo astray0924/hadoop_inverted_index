@@ -1,7 +1,6 @@
-package inverted_index;
 
-import invertedindex.InvertedIndexBuilder;
-import invertedindex.InvertedIndexBuilder.Map;
+import invertedindex.InvertedIndexDriver;
+import invertedindex.InvertedIndexMapper;
 
 import java.io.IOException;
 
@@ -19,8 +18,8 @@ public class InvertedIndexBuilderMapTest {
 		Text value = new Text("<id>10</id> test test2 test3-");
 
 		MapDriver<LongWritable, Text, Text, IntWritable> driver = new MapDriver<LongWritable, Text, Text, IntWritable>();
-		InvertedIndexBuilder.populateStopWords();
-		driver.withMapper(new Map())
+
+		driver.withMapper(new InvertedIndexMapper())
 				.withInput(new LongWritable(1), value)
 				.withOutput(
 						new Pair<Text, IntWritable>(new Text("10"),
@@ -37,8 +36,8 @@ public class InvertedIndexBuilderMapTest {
 		Text value = new Text("<id>10</id> <id>99</id> test test2 test3-");
 
 		MapDriver<LongWritable, Text, Text, IntWritable> driver = new MapDriver<LongWritable, Text, Text, IntWritable>();
-		InvertedIndexBuilder.populateStopWords();
-		driver.withMapper(new Map())
+		
+		driver.withMapper(new InvertedIndexMapper())
 				.withInput(new LongWritable(1), value)
 				.withOutput(
 						new Pair<Text, IntWritable>(new Text("10"),
