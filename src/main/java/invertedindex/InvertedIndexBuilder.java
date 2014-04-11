@@ -2,6 +2,7 @@ package invertedindex;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,13 +23,26 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.jsoup.Jsoup;
 
-public class InvertedIndexer {
+public class InvertedIndexBuilder {
 	private static List<Text> stopWords;
+	
+	public static void populateStopWords() throws IOException {
+		// stopwords 리스트 생성 
+		stopWords = new ArrayList<Text>();
+		BufferedReader br = new BufferedReader(new FileReader(new File(
+				"stopwords_v3.txt")));
+		String line;
+		while ((line = br.readLine()) != null) {
+			stopWords.add(new Text(line));
+		}
+		br.close();
+	}
 
-	public static class InvertedIndexerMapper extends
+	public static class Map extends
 			Mapper<LongWritable, Text, Text, IntWritable> {
-		private static final Pattern sanitizePattern = Pattern
+		private static final Pattern onlyAlphaNumericPattern = Pattern
 				.compile("[^A-Za-z0-9 ]");
 		private static final Pattern pageIdPattern = Pattern
 				.compile("<id>(.+?)</id>");
@@ -51,8 +65,10 @@ public class InvertedIndexer {
 			}
 		}
 
+		// ** Jsoup 사용하여 HTML 태그를 사전에 제거 
 		public String getSanitizedPage(String page) {
-			return sanitizePattern.matcher(page).replaceAll(" ").toLowerCase();
+			String rawText = Jsoup.parse(page).text();
+			return onlyAlphaNumericPattern.matcher(rawText).replaceAll(" ").toLowerCase();
 		}
 
 		public Integer getPageID(String page) {
@@ -63,7 +79,7 @@ public class InvertedIndexer {
 	}
 
 	// <word>: <page IDs>
-	public static class InvertedIndexerReducer extends
+	public static class Reduce extends
 			Reducer<Text, IntWritable, Text, PageIdArrayWritable> {
 
 		@Override
@@ -115,27 +131,20 @@ public class InvertedIndexer {
 					.println("Usage: InvertedIndexer <input path> <output path>");
 			System.exit(-1);
 		}
-
-		// stopword 리스트 생성
-		stopWords = new ArrayList<Text>();
-		BufferedReader br = new BufferedReader(new FileReader(new File(
-				"stopwords_v3.txt")));
-		String line;
-		while ((line = br.readLine()) != null) {
-			stopWords.add(new Text(line));
-		}
-		br.close();
+		
+		// populate a list of stopwords
+		populateStopWords();
 
 		// 하둡 Job 생성 및 실행
 		Job job = new Job();
-		job.setJarByClass(InvertedIndexer.class);
+		job.setJarByClass(InvertedIndexBuilder.class);
 		job.setJobName("Build Inverted Index");
 
 		FileInputFormat.addInputPath(job, new Path(args[0]));
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
-		job.setMapperClass(InvertedIndexerMapper.class);
-		job.setReducerClass(InvertedIndexerReducer.class);
+		job.setMapperClass(Map.class);
+		job.setReducerClass(Reduce.class);
 
 		job.setMapOutputKeyClass(Text.class);
 		job.setMapOutputValueClass(IntWritable.class);
