@@ -14,7 +14,7 @@ public class InvertedIndexDriver extends Configured implements Tool {
 		// arguments
 		if (args.length < 2) {
 			System.err
-					.printf("Usage: InvertedIndexBuilder [generic options] <input path> <output path>\n",
+					.printf("Usage: %s [generic options] <input path> <output path>\n",
 							getClass().getSimpleName());
 			ToolRunner.printGenericCommandUsage(System.err);
 			return -1;
