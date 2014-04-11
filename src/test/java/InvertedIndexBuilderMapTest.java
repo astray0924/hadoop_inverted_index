@@ -1,7 +1,4 @@
 
-import invertedindex.InvertedIndexDriver;
-import invertedindex.InvertedIndexMapper;
-
 import java.io.IOException;
 
 import org.apache.hadoop.io.IntWritable;
