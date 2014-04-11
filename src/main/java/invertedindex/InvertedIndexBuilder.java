@@ -32,7 +32,7 @@ public class InvertedIndexBuilder {
 		// stopwords 리스트 생성 
 		stopWords = new ArrayList<Text>();
 		BufferedReader br = new BufferedReader(new FileReader(new File(
-				"stopwords_v3.txt")));
+				"resources/stopwords_v3.txt")));
 		String line;
 		while ((line = br.readLine()) != null) {
 			stopWords.add(new Text(line));
@@ -129,6 +129,11 @@ public class InvertedIndexBuilder {
 		if (args.length != 2) {
 			System.err
 					.println("Usage: InvertedIndexer <input path> <output path>");
+			
+			for (String arg: args) {
+				System.err.println(arg);
+			}
+			
 			System.exit(-1);
 		}
 		
