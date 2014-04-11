@@ -1,3 +1,4 @@
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -13,15 +14,15 @@ public class InvertedIndexDriver extends Configured implements Tool {
 	public int run(String[] args) throws Exception {
 		// arguments
 		if (args.length < 2) {
-			System.err
-					.printf("Usage: %s [generic options] <input path> <output path>\n",
-							getClass().getSimpleName());
+			System.err.printf(
+					"Usage: %s [generic options] <input path> <output path>\n",
+					getClass().getSimpleName());
 			ToolRunner.printGenericCommandUsage(System.err);
 			return -1;
 		}
 
 		// 하둡 Job 생성 및 실행
-		Job job = new Job();
+		Job job = Job.getInstance(getConf(), "Inverted Index");
 		job.setJarByClass(InvertedIndexDriver.class);
 		job.setJobName("Build Inverted Index");
 
@@ -42,7 +43,8 @@ public class InvertedIndexDriver extends Configured implements Tool {
 	}
 
 	public static void main(String[] args) throws Exception {
-		int exitCode = ToolRunner.run(new InvertedIndexDriver(), args);
+		Configuration conf = new Configuration();
+		int exitCode = ToolRunner.run(conf, new InvertedIndexDriver(), args);
 		System.exit(exitCode);
 	}
 
