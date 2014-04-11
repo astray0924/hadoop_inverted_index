@@ -3,14 +3,14 @@ import java.util.Arrays;
 import org.apache.hadoop.io.ArrayWritable;
 import org.apache.hadoop.io.Writable;
 
-public class PageIdArrayWritable extends ArrayWritable {
+public class CustomArrayWritable extends ArrayWritable {
 
-	public PageIdArrayWritable(Class<? extends Writable> valueClass,
+	public CustomArrayWritable(Class<? extends Writable> valueClass,
 			Writable[] values) {
 		super(valueClass, values);
 	}
 
-	public PageIdArrayWritable(Class<? extends Writable> valueClass) {
+	public CustomArrayWritable(Class<? extends Writable> valueClass) {
 		super(valueClass);
 	}
 

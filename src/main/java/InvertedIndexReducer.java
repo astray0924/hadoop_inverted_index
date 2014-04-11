@@ -7,7 +7,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
 public class InvertedIndexReducer extends
-		Reducer<Text, IntWritable, Text, PageIdArrayWritable> {
+		Reducer<Text, IntWritable, Text, CustomArrayWritable> {
 
 	@Override
 	public void reduce(Text key, Iterable<IntWritable> values, Context context)
@@ -21,7 +21,7 @@ public class InvertedIndexReducer extends
 
 		context.write(
 				key,
-				new PageIdArrayWritable(IntWritable.class, list
+				new CustomArrayWritable(IntWritable.class, list
 						.toArray(new IntWritable[list.size()])));
 
 	}

@@ -1,8 +1,4 @@
-
-
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,8 +23,8 @@ public class InvertedIndexMapper extends
 	public InvertedIndexMapper() throws IOException {
 		// stopwords 리스트 생성
 		stopWords = new ArrayList<Text>();
-		BufferedReader br = new BufferedReader(new FileReader(new File(
-				"stopwords_v3.txt")));
+		BufferedReader br = new BufferedReader(new FileReader(getClass()
+				.getResource("stopwords_v3.txt").getPath()));
 		String line;
 		while ((line = br.readLine()) != null) {
 			stopWords.add(new Text(line));
