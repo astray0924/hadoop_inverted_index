@@ -15,7 +15,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.jsoup.Jsoup;
 
 public class InvertedIndexMapper extends
-		Mapper<LongWritable, Text, Text, IntWritable> {
+		Mapper<LongWritable, Text, Text, LongWritable> {
 	private List<Text> stopWords;
 	private final Pattern onlyAlphaNumericPattern = Pattern
 			.compile("[^A-Za-z0-9 ]");
@@ -38,7 +38,7 @@ public class InvertedIndexMapper extends
 			throws IOException, InterruptedException {
 		String page = value.toString();
 		String sanitizedPage = getSanitizedPage(page);
-		IntWritable pageId = new IntWritable(getPageID(page));
+		LongWritable pageId = new LongWritable(getPageID(page));
 
 		StringTokenizer iter = new StringTokenizer(sanitizedPage);
 		while (iter.hasMoreTokens()) {
@@ -58,9 +58,9 @@ public class InvertedIndexMapper extends
 				.toLowerCase();
 	}
 
-	public Integer getPageID(String page) {
+	public Long getPageID(String page) {
 		Matcher matcher = pageIdPattern.matcher(page);
 		matcher.find();
-		return new Integer(matcher.group(1));
+		return new Long(matcher.group(1));
 	}
 }

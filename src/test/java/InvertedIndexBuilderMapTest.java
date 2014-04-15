@@ -14,16 +14,16 @@ public class InvertedIndexBuilderMapTest {
 			InterruptedException {
 		Text value = new Text("<id>10</id> test test2 test3-");
 
-		MapDriver<LongWritable, Text, Text, IntWritable> driver = new MapDriver<LongWritable, Text, Text, IntWritable>();
+		MapDriver<LongWritable, Text, Text, LongWritable> driver = new MapDriver<LongWritable, Text, Text, LongWritable>();
 
 		driver.withMapper(new InvertedIndexMapper())
 				.withInput(new LongWritable(1), value)
 				.withOutput(
-						new Pair<Text, IntWritable>(new Text("10"),
-								new IntWritable(10)))
-				.withOutput(new Text("test"), new IntWritable(10))
-				.withOutput(new Text("test2"), new IntWritable(10))
-				.withOutput(new Text("test3"), new IntWritable(10));
+						new Pair<Text, LongWritable>(new Text("10"),
+								new LongWritable(10)))
+				.withOutput(new Text("test"), new LongWritable(10))
+				.withOutput(new Text("test2"), new LongWritable(10))
+				.withOutput(new Text("test3"), new LongWritable(10));
 
 		driver.runTest();
 	}
@@ -32,17 +32,17 @@ public class InvertedIndexBuilderMapTest {
 	public void testMultiPageIdCase() throws IOException, InterruptedException {
 		Text value = new Text("<id>10</id> <id>99</id> test test2 test3-");
 
-		MapDriver<LongWritable, Text, Text, IntWritable> driver = new MapDriver<LongWritable, Text, Text, IntWritable>();
+		MapDriver<LongWritable, Text, Text, LongWritable> driver = new MapDriver<LongWritable, Text, Text, LongWritable>();
 		
 		driver.withMapper(new InvertedIndexMapper())
 				.withInput(new LongWritable(1), value)
 				.withOutput(
-						new Pair<Text, IntWritable>(new Text("10"),
-								new IntWritable(10)))
-				.withOutput(new Text("99"), new IntWritable(10))
-				.withOutput(new Text("test"), new IntWritable(10))
-				.withOutput(new Text("test2"), new IntWritable(10))
-				.withOutput(new Text("test3"), new IntWritable(10));
+						new Pair<Text, LongWritable>(new Text("10"),
+								new LongWritable(10)))
+				.withOutput(new Text("99"), new LongWritable(10))
+				.withOutput(new Text("test"), new LongWritable(10))
+				.withOutput(new Text("test2"), new LongWritable(10))
+				.withOutput(new Text("test3"), new LongWritable(10));
 
 		driver.runTest();
 	}
