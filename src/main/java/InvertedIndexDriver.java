@@ -38,7 +38,6 @@ public class InvertedIndexDriver extends Configured implements Tool {
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(CustomArrayWritable.class);
 
-		job.setNumReduceTasks(3);
 		return job.waitForCompletion(true) ? 0 : 1;
 	}
 
