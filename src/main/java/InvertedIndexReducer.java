@@ -8,7 +8,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
 public class InvertedIndexReducer extends
-		Reducer<Text, LongWritable, Text, CustomArrayWritable> {
+		Reducer<Text, LongWritable, Text, LongArrayWritable> {
 
 	@Override
 	public void reduce(Text key, Iterable<LongWritable> values, Context context)
@@ -20,11 +20,9 @@ public class InvertedIndexReducer extends
 			}
 		}
 
-		context.write(
-				key,
-				new CustomArrayWritable(LongWritable.class, list
-						.toArray(new LongWritable[list.size()])));
+		LongArrayWritable indices = new LongArrayWritable();
+		indices.set(list.toArray(new LongWritable[list.size()]));
+		context.write(key, indices);
 
 	}
-
 }

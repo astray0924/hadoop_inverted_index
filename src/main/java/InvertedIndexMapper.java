@@ -17,7 +17,7 @@ import org.jsoup.Jsoup;
 public class InvertedIndexMapper extends
 		Mapper<LongWritable, Text, Text, LongWritable> {
 	private List<Text> stopWords;
-	private final Pattern onlyAlphaNumericPattern = Pattern
+	private final Pattern nonAlphaNumericPattern = Pattern
 			.compile("[^A-Za-z0-9 ]");
 	private final Pattern pageIdPattern = Pattern.compile("<id>(.+?)</id>");
 
@@ -53,8 +53,8 @@ public class InvertedIndexMapper extends
 
 	// ** Jsoup 사용하여 HTML 태그를 사전에 제거
 	public String getSanitizedPage(String page) {
-		String rawText = Jsoup.parse(page).text();
-		return onlyAlphaNumericPattern.matcher(rawText).replaceAll(" ")
+		String onlyText = Jsoup.parse(page).text();
+		return nonAlphaNumericPattern.matcher(onlyText).replaceAll(" ")
 				.toLowerCase();
 	}
 

@@ -1,17 +1,18 @@
 import java.util.Arrays;
 
 import org.apache.hadoop.io.ArrayWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Writable;
 
-public class CustomArrayWritable extends ArrayWritable {
+public class LongArrayWritable extends ArrayWritable {
 
-	public CustomArrayWritable(Class<? extends Writable> valueClass,
-			Writable[] values) {
-		super(valueClass, values);
+	public LongArrayWritable() {
+		super(LongWritable.class);
 	}
 
-	public CustomArrayWritable(Class<? extends Writable> valueClass) {
-		super(valueClass);
+	@Override
+	public void set(Writable[] values) {
+		super.set(values);
 	}
 
 	@Override
