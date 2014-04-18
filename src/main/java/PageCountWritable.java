@@ -3,20 +3,24 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.io.Writable;
 
-public class PageCountWritableComparable implements WritableComparable<Object> {
+public class PageCountWritable implements Writable {
 	private Text keyword;
-	private LongWritable count;
+	private IntWritable count;
 
-	public PageCountWritableComparable() {
+	public PageCountWritable() {
 		this.keyword = new Text("");
-		this.count = new LongWritable(0);
+		this.count = new IntWritable(0);
 	}
 
-	public PageCountWritableComparable(Text keyword, LongWritable count) {
+	public PageCountWritable(String keyword, int count) {
+		this.keyword = new Text(keyword);
+		this.count = new IntWritable(count);
+	}
+	
+	public PageCountWritable(Text keyword, IntWritable count) {
 		this.keyword = keyword;
 		this.count = count;
 	}
@@ -45,24 +49,24 @@ public class PageCountWritableComparable implements WritableComparable<Object> {
 		this.keyword = keyword;
 	}
 
-	public LongWritable getCount() {
+	public IntWritable getCount() {
 		return count;
 	}
 
-	public void setCount(LongWritable count) {
+	public void setCount(IntWritable count) {
 		this.count = count;
 	}
 
-	public int compareTo(Object o) {
-		PageCountWritableComparable compareTo = (PageCountWritableComparable) o;
-
-		int result = count.compareTo(compareTo.getCount());
-
-		if (result == 0) {
-			result = keyword.compareTo(compareTo.getKeyword());
-		}
-
-		return -result;
-	}
+//	public int compareTo(Object o) {
+//		PageCountWritableComparable compareTo = (PageCountWritableComparable) o;
+//
+//		int result = count.compareTo(compareTo.getCount());
+//
+//		if (result == 0) {
+//			result = keyword.compareTo(compareTo.getKeyword());
+//		}
+//
+//		return -result;
+//	}
 
 }
