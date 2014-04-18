@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>ac.kr.kaist.kyoungrok</groupId>
 	<artifactId>inverted_index</artifactId>
-	<version>0.1</version>
+	<version>0.2</version>
 	<build>
 		<plugins>
 			<plugin>
@@ -13,6 +13,7 @@
 					<archive>
 						<manifest>
 							<addClasspath>true</addClasspath>
+							<mainClass>InvertedIndexDriver</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
@@ -49,11 +50,13 @@
 			<groupId>org.apache.hadoop</groupId>
 			<artifactId>hadoop-client</artifactId>
 			<version>2.2.0</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.hadoop</groupId>
 			<artifactId>hadoop-common</artifactId>
 			<version>2.2.0</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -66,6 +69,7 @@
 			<artifactId>mrunit</artifactId>
 			<version>0.9.0-incubating</version>
 			<classifier>hadoop2</classifier>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.hadoop</groupId>
